@@ -1,0 +1,1101 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Watermarkin ♡ | Batch Photo Watermarker</title>
+<style>
+:root{
+  --blue:#78a9fa;
+  --pink:#f3a4d1;
+  --deep:#4269c5;
+  --text:#52679b;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial,sans-serif;
+  color:var(--text);
+  background:linear-gradient(125deg,#dceaff,#ffe5f4,#eaf2ff);
+  min-height:100vh;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+header{
+  padding:24px 4%;
+  background:linear-gradient(100deg,#e4efff,#ffe5f4);
+  border-bottom:1px solid white;
+}
+.logo{
+  font:bold clamp(30px,4vw,43px) Georgia,serif;
+  background:linear-gradient(90deg,#428df3,#ec75ba);
+  color:transparent;
+  background-clip:text;
+  margin:0;
+}
+header p{
+  margin:5px 0 0;
+  font-size:12px;
+  letter-spacing:2px;
+  color:#8ca7df;
+}
+.layout{
+  max-width:1500px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:220px minmax(0,1fr);
+  gap:20px;
+  padding:22px;
+}
+.sidebar,.card{
+  background:rgba(255,255,255,.8);
+  border:1px solid white;
+  border-radius:22px;
+  box-shadow:0 10px 35px #7694d316;
+}
+.sidebar{
+  padding:20px 13px;
+  align-self:start;
+  position:sticky;
+  top:15px;
+}
+.nav{
+  display:block;
+  text-decoration:none;
+  padding:15px;
+  margin-bottom:8px;
+  border-radius:13px;
+  color:var(--deep);
+}
+.nav:hover,.nav.active{
+  background:linear-gradient(100deg,#85b4ff,#f5addb);
+  color:white;
+}
+.sidebar-note{
+  margin-top:35px;
+  background:linear-gradient(135deg,#e6f1ff,#ffe9f6);
+  padding:17px;
+  border-radius:16px;
+  font-size:12px;
+  line-height:1.8;
+}
+main{min-width:0}
+.card{padding:22px;margin-bottom:18px;min-width:0}
+h2{
+  font:bold 26px Georgia,serif;
+  color:#4168c3;
+  margin:0 0 10px;
+}
+h3{
+  color:#4269c5;
+  font-size:17px;
+  margin:0 0 15px;
+}
+.subtitle{margin:0;color:#8095c6;font-size:14px;line-height:1.8}
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.features{display:flex;flex-wrap:wrap;gap:9px}
+.feature{
+  background:linear-gradient(120deg,#e9f3ff,#ffe8f6);
+  border-radius:13px;
+  padding:12px;
+  font-size:12px;
+  line-height:1.6;
+}
+.upload-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 260px;
+  gap:15px;
+}
+.upload-card{
+  background:rgba(255,255,255,.75);
+  border:1px solid #edf0ff;
+  border-radius:18px;
+  padding:18px;
+  min-width:0;
+}
+.drop{
+  border:2px dashed #b7bfff;
+  border-radius:15px;
+  background:linear-gradient(130deg,#f4f9ff,#fff4fa);
+  padding:26px 12px;
+  text-align:center;
+  cursor:pointer;
+}
+.drop.drag{background:#e5eeff;border-color:#639af6}
+.drop .emoji{font-size:35px;display:block;margin-bottom:10px}
+.drop strong{font-size:14px;color:#486bc6}
+.drop p{font-size:12px;color:#96a1c7;line-height:1.6}
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:12px 19px;
+  font-weight:600;
+  transition:.15s;
+}
+.btn:hover:not(:disabled){
+  filter:brightness(.97);
+  transform:translateY(-1px);
+}
+.gradient{
+  background:linear-gradient(100deg,#84b6ff,#f5a7d7);
+  color:white;
+}
+.pale{
+  background:#fff0f8;
+  color:#d25da1;
+  border:1px solid #f6d8ed;
+}
+.preview-wm{
+  height:145px;
+  border-radius:12px;
+  background-color:white;
+  background-image:
+    linear-gradient(45deg,#e7e7f1 25%,transparent 25%),
+    linear-gradient(-45deg,#e7e7f1 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#e7e7f1 75%),
+    linear-gradient(-45deg,transparent 75%,#e7e7f1 75%);
+  background-size:20px 20px;
+  background-position:0 0,0 10px,10px -10px,-10px 0;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+.preview-wm img{
+  max-width:90%;
+  max-height:90%;
+  object-fit:contain;
+  opacity:.3;
+}
+small{font-size:12px;color:#9a9dc2}
+.opacity-control{
+  margin-top:13px;
+  padding:13px;
+  border-radius:13px;
+  background:linear-gradient(110deg,#edf4ff,#ffeff9);
+}
+.opacity-heading{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:13px;
+  font-weight:600;
+  color:#536bc2;
+}
+.opacity-value{
+  color:#e269ad;
+  font-size:19px;
+  font-weight:700;
+}
+input[type=range]{
+  display:block;
+  width:100%;
+  margin:17px 0 8px;
+  accent-color:#e681bd;
+}
+.range-labels{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:#97a3c9;
+}
+.settings{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:15px;
+}
+.setting{
+  background:#f3f7ff;
+  border-radius:13px;
+  padding:15px;
+  font-size:13px;
+  min-width:0;
+}
+.setting strong{
+  display:block;
+  color:#4269c5;
+  margin-bottom:8px;
+}
+select{
+  width:100%;
+  border:1px solid #d9e4ff;
+  border-radius:9px;
+  background:white;
+  padding:11px;
+  color:#536bb0;
+}
+.setting p{
+  font-size:11px;
+  line-height:1.6;
+  color:#95a2c8;
+  margin-bottom:0;
+}
+
+/* PREVIEW SUDAH DIPERBAIKI */
+.compare{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:15px;
+  margin-top:15px;
+}
+.compare-box{
+  border-radius:14px;
+  background:#f4f7ff;
+  padding:12px;
+  text-align:center;
+  min-width:0;
+  overflow:hidden;
+}
+.compare-box h3{
+  margin:0 0 12px;
+}
+.preview-frame{
+  width:100%;
+  height:330px;
+  border:1px dashed #b7c8f2;
+  border-radius:12px;
+  background:#edf3ff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.preview-frame img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  object-position:center;
+  margin:0;
+  border-radius:8px;
+}
+.placeholder{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  font-size:13px;
+  color:#9aa9cf;
+  text-align:center;
+  padding:15px;
+}
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
+  gap:13px;
+  margin-top:18px;
+}
+.tile{
+  min-width:0;
+  border:2px solid #e2eaff;
+  border-radius:13px;
+  padding:6px;
+  background:#fff8fc;
+  text-align:left;
+  cursor:pointer;
+}
+.tile.active{border-color:#e981c1}
+.tile img{
+  display:block;
+  width:100%;
+  aspect-ratio:3/4;
+  object-fit:contain;
+  background:#f0f4ff;
+  border-radius:9px;
+}
+.tile span{
+  display:block;
+  font-size:11px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:5px;
+  color:#7d8eb7;
+}
+.actions{
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+.status{
+  padding:13px;
+  margin-top:18px;
+  background:#f1f6ff;
+  border-radius:12px;
+  font-size:13px;
+}
+.track{
+  height:8px;
+  border-radius:20px;
+  background:#dfeaff;
+  margin-top:10px;
+  overflow:hidden;
+}
+.bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#83b4ff,#ee99cd);
+  transition:width .15s;
+}
+footer{
+  text-align:center;
+  padding:20px;
+  font-size:12px;
+  color:#93a5cd;
+}
+@media(max-width:1100px){
+  .upload-grid{grid-template-columns:1fr 1fr}
+  .upload-card:last-child{grid-column:1/-1}
+}
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr;padding:12px}
+  .sidebar{display:none}
+  .card{padding:15px}
+  .upload-grid{grid-template-columns:1fr}
+  .upload-card:last-child{grid-column:auto}
+  .settings{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .compare{gap:8px}
+  .compare-box{padding:7px}
+  .compare-box h3{font-size:13px}
+  .preview-frame{height:220px}
+  .actions .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 class="logo">watermarkin ♡</h1>
+  <p>BATCH PHOTO WATERMARKER</p>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <a class="nav active" href="#home">⌂ &nbsp; Home</a>
+  <a class="nav" href="#upload">▧ &nbsp; Upload Foto</a>
+  <a class="nav" href="#upload">♡ &nbsp; Upload Watermark</a>
+  <a class="nav" href="#hasil">↓ &nbsp; Hasil & Download</a>
+  <a class="nav" href="#pengaturan">⚙ &nbsp; Pengaturan</a>
+  <a class="nav" href="#panduan">ⓘ &nbsp; Panduan</a>
+  <div class="sidebar-note">
+    ♡ Privasi kamu penting!<br>
+    Semua foto diproses langsung di browser.
+    Tidak dikirim ke server.
+  </div>
+</aside>
+
+<main>
+<section class="card" id="home">
+  <div class="hero">
+    <div>
+      <h2>Watermarkin ♡</h2>
+      <p class="subtitle">
+        Batch watermark foto dengan watermark kamu sendiri.
+      </p>
+    </div>
+    <div class="features">
+      <div class="feature">▧ Crop Foto<br><b>3:4 / Full</b></div>
+      <div class="feature">♡ Watermark<br><b>Tengah / Berulang</b></div>
+      <div class="feature">▣ Banyak Foto<br><b>Sekaligus</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="upload">
+  <div class="upload-grid">
+    <div class="upload-card">
+      <h3>1. Upload Foto</h3>
+      <div class="drop" id="photoDrop">
+        <span class="emoji">☁️</span>
+        <strong>Pilih atau seret banyak foto</strong>
+        <p>JPG, PNG, WEBP<br>Bisa pilih banyak sekaligus</p>
+        <button class="btn gradient" id="photoBtn" type="button">
+          ♡ Pilih Foto
+        </button>
+      </div>
+      <input id="photoInput" type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple hidden>
+      <p><small id="photoCount">Belum ada foto.</small></p>
+    </div>
+
+    <div class="upload-card">
+      <h3>2. Upload Watermark</h3>
+      <div class="drop" id="wmDrop">
+        <span class="emoji">🎀</span>
+        <strong>Upload watermark sendiri</strong>
+        <p>PNG transparan direkomendasikan<br>
+        Warna asli watermark tetap dipakai</p>
+        <button class="btn gradient" id="wmBtn" type="button">
+          ♡ Pilih Watermark
+        </button>
+      </div>
+      <input id="wmInput" type="file"
+        accept="image/png,image/webp,image/jpeg" hidden>
+      <p><small id="wmName">Belum ada watermark.</small></p>
+    </div>
+
+    <div class="upload-card">
+      <h3>Preview Watermark</h3>
+      <div class="preview-wm" id="wmPreview">
+        <span style="font-size:35px;color:#c6b5dc">♡</span>
+      </div>
+      <div class="opacity-control">
+        <div class="opacity-heading">
+          <span>♡ Transparansi Watermark</span>
+          <span class="opacity-value" id="opacityLabel">30%</span>
+        </div>
+        <input type="range" id="opacitySlider"
+          min="0" max="100" step="1" value="30">
+        <div class="range-labels">
+          <span>0% Tidak terlihat</span>
+          <span>100% Penuh</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="pengaturan">
+  <h2>⚙ Pengaturan Foto & Watermark</h2>
+  <div class="settings">
+    <div class="setting">
+      <strong>♡ Mode Foto</strong>
+      <select id="cropMode">
+        <option value="crop" selected>Auto Crop 3:4 (Tengah)</option>
+        <option value="full">Full Picture (Tanpa Crop)</option>
+      </select>
+      <p>Full Picture mempertahankan seluruh isi dan rasio foto asli.</p>
+    </div>
+
+    <div class="setting">
+      <strong>♡ Model Watermark</strong>
+      <select id="wmMode">
+        <option value="repeat" selected>
+          Banyak Watermark (Full Berjejer)
+        </option>
+        <option value="center">
+          Satu Watermark Besar di Tengah
+        </option>
+      </select>
+      <p>Pilih satu watermark di tengah atau banyak watermark berulang.</p>
+    </div>
+
+    <div class="setting">
+      <strong>♡ Ukuran Watermark</strong>
+      <select id="sizeSetting">
+        <option value="small">Kecil</option>
+        <option value="normal" selected>Normal</option>
+        <option value="large">Besar</option>
+      </select>
+      <p>Ukuran mengikuti mode watermark yang dipilih.</p>
+    </div>
+
+    <div class="setting" id="gapBox">
+      <strong>♡ Jarak Watermark Berulang</strong>
+      <select id="gapSetting">
+        <option value="tight">Rapat</option>
+        <option value="normal" selected>Normal</option>
+        <option value="wide">Renggang</option>
+      </select>
+      <p>Hanya berlaku untuk watermark berulang.</p>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="hasil">
+  <div class="hero">
+    <h2>3. Hasil Preview ♡</h2>
+    <small id="resultCount">0 foto selesai</small>
+  </div>
+
+  <div class="compare">
+    <div class="compare-box">
+      <h3>Foto Asli</h3>
+      <div class="preview-frame">
+        <div class="placeholder" id="beforeEmpty">
+          Foto asli akan tampil di sini ♡
+        </div>
+        <img id="beforeImg" hidden alt="Foto asli">
+      </div>
+    </div>
+
+    <div class="compare-box">
+      <h3>Hasil Watermark</h3>
+      <div class="preview-frame">
+        <div class="placeholder" id="afterEmpty">
+          Hasil watermark akan tampil di sini ♡
+        </div>
+        <img id="afterImg" hidden alt="Hasil watermark">
+      </div>
+    </div>
+  </div>
+
+  <div id="gallery" class="gallery"></div>
+
+  <div class="status">
+    <span id="statusText">
+      Upload foto dan watermark untuk memulai ♡
+    </span>
+    <div class="track"><div id="progress" class="bar"></div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn pale" id="resetBtn">♡ Hapus Semua</button>
+    <button class="btn pale" id="oneBtn" disabled>
+      ↓ Download Foto Ini
+    </button>
+    <button class="btn gradient" id="allBtn" disabled>
+      ↓ Download Semua (ZIP)
+    </button>
+  </div>
+</section>
+
+<section class="card" id="panduan">
+  <h3>♡ Cara Pakai</h3>
+  <p class="subtitle">
+    1. Upload banyak foto sekaligus.<br>
+    2. Upload watermark milikmu sendiri.<br>
+    3. Pilih Auto Crop 3:4 atau Full Picture.<br>
+    4. Pilih watermark satu di tengah atau banyak berulang.<br>
+    5. Atur ukuran, jarak, dan transparansi watermark.<br>
+    6. Download hasil satuan atau semuanya dalam ZIP.
+  </p>
+</section>
+</main>
+</div>
+
+<footer>Made with ♡ · Watermarkin</footer>
+
+<script>
+"use strict";
+
+const $=id=>document.getElementById(id);
+const photos=[];
+let watermarkURL=null;
+let selected=0;
+let busy=false;
+let rerunNeeded=false;
+let opacityTimer=null;
+const supported=["image/jpeg","image/png","image/webp"];
+
+function updateStatus(message,percent){
+  $("statusText").textContent=message;
+  if(percent!==undefined)
+    $("progress").style.width=percent+"%";
+}
+
+function setButtons(){
+  $("allBtn").disabled=busy||!photos.some(p=>p.blob);
+  $("oneBtn").disabled=busy||!photos[selected]?.blob;
+  $("resetBtn").disabled=busy;
+  $("photoBtn").disabled=busy;
+  $("wmBtn").disabled=busy;
+  ["cropMode","wmMode","sizeSetting","gapSetting"]
+    .forEach(id=>$(id).disabled=busy);
+}
+
+function loadImage(url){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(Error("Gambar tidak terbaca"));
+    img.src=url;
+  });
+}
+
+function toBlob(canvas){
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(blob=>blob?resolve(blob):
+      reject(Error("Gagal membuat JPG")),"image/jpeg",.94);
+  });
+}
+
+function addPhotoFiles(list){
+  if(busy)return;
+  const incoming=Array.from(list).filter(f=>supported.includes(f.type));
+  if(!incoming.length){
+    alert("Pilih foto JPG, PNG, atau WEBP ya ♡");
+    return;
+  }
+  incoming.forEach(file=>{
+    photos.push({
+      file,
+      originalURL:URL.createObjectURL(file),
+      resultURL:null,
+      blob:null
+    });
+  });
+  render();
+  if(watermarkURL)requestProcess();
+  else updateStatus("Foto siap. Sekarang upload watermark ♡",0);
+}
+
+$("photoBtn").onclick=e=>{
+  e.stopPropagation();
+  $("photoInput").click();
+};
+$("photoDrop").onclick=()=>$("photoInput").click();
+$("photoInput").onchange=e=>{
+  addPhotoFiles(e.target.files);
+  e.target.value="";
+};
+
+function wireDrop(id,handler){
+  const el=$(id);
+  el.ondragover=e=>{
+    e.preventDefault();
+    el.classList.add("drag");
+  };
+  el.ondragleave=()=>el.classList.remove("drag");
+  el.ondrop=e=>{
+    e.preventDefault();
+    el.classList.remove("drag");
+    if(!busy)handler(e.dataTransfer.files);
+  };
+}
+wireDrop("photoDrop",addPhotoFiles);
+
+function setWatermark(file){
+  if(busy)return;
+  if(!file||!supported.includes(file.type)){
+    alert("Pilih watermark PNG, WEBP, atau JPG.");
+    return;
+  }
+  if(watermarkURL)URL.revokeObjectURL(watermarkURL);
+  watermarkURL=URL.createObjectURL(file);
+  $("wmName").textContent=file.name;
+  $("wmPreview").replaceChildren();
+
+  const img=document.createElement("img");
+  img.src=watermarkURL;
+  img.alt="Preview watermark";
+  img.style.opacity=Number($("opacitySlider").value)/100;
+  $("wmPreview").append(img);
+  requestProcess();
+}
+
+$("wmBtn").onclick=e=>{
+  e.stopPropagation();
+  $("wmInput").click();
+};
+$("wmDrop").onclick=()=>$("wmInput").click();
+$("wmInput").onchange=e=>{
+  setWatermark(e.target.files[0]);
+  e.target.value="";
+};
+wireDrop("wmDrop",list=>setWatermark(list[0]));
+
+$("opacitySlider").addEventListener("input",()=>{
+  const value=Number($("opacitySlider").value);
+  $("opacityLabel").textContent=value+"%";
+  const img=$("wmPreview").querySelector("img");
+  if(img)img.style.opacity=value/100;
+
+  clearTimeout(opacityTimer);
+  opacityTimer=setTimeout(requestProcess,350);
+});
+
+function updateMode(){
+  $("gapBox").style.display=
+    $("wmMode").value==="repeat"?"block":"none";
+  requestProcess();
+}
+
+$("cropMode").onchange=requestProcess;
+$("wmMode").onchange=updateMode;
+$("sizeSetting").onchange=requestProcess;
+$("gapSetting").onchange=requestProcess;
+
+function requestProcess(){
+  if(!watermarkURL||!photos.length)return;
+  if(busy){
+    rerunNeeded=true;
+    return;
+  }
+  processAll();
+}
+
+function currentSettings(){
+  return {
+    crop:$("cropMode").value,
+    mode:$("wmMode").value,
+    size:$("sizeSetting").value,
+    gap:$("gapSetting").value,
+    opacity:Number($("opacitySlider").value)/100
+  };
+}
+
+async function processPhoto(photo,wm,s){
+  const img=await loadImage(photo.originalURL);
+  const iw=img.naturalWidth;
+  const ih=img.naturalHeight;
+  if(!iw||!ih)throw Error("Foto tidak valid");
+
+  let sx=0,sy=0,sw=iw,sh=ih;
+
+  if(s.crop==="crop"){
+    if(iw/ih>3/4){
+      sw=ih*3/4;
+      sx=(iw-sw)/2;
+    }else{
+      sh=iw*4/3;
+      sy=(ih-sh)/2;
+    }
+  }
+
+  const ratio=Math.min(1,1800/sw,2400/sh);
+  const width=Math.max(1,Math.round(sw*ratio));
+  const height=Math.max(1,Math.round(sh*ratio));
+
+  const canvas=document.createElement("canvas");
+  canvas.width=width;
+  canvas.height=height;
+  const ctx=canvas.getContext("2d");
+  if(!ctx)throw Error("Canvas tidak tersedia");
+
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,width,height);
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+  ctx.drawImage(img,sx,sy,sw,sh,0,0,width,height);
+
+  const wmRatio=wm.naturalWidth/wm.naturalHeight;
+  if(!wmRatio)throw Error("Watermark tidak valid");
+
+  ctx.save();
+  ctx.globalAlpha=s.opacity;
+
+  if(s.mode==="center"){
+    const factor={
+      small:.35,
+      normal:.55,
+      large:.75
+    }[s.size];
+
+    let wmWidth=width*factor;
+    let wmHeight=wmWidth/wmRatio;
+    const maxHeight=height*.65;
+
+    if(wmHeight>maxHeight){
+      wmHeight=maxHeight;
+      wmWidth=wmHeight*wmRatio;
+    }
+
+    const x=(width-wmWidth)/2;
+    const y=(height-wmHeight)/2;
+    ctx.drawImage(wm,x,y,wmWidth,wmHeight);
+  }else{
+    const factor={
+      small:.18,
+      normal:.26,
+      large:.36
+    }[s.size];
+
+    const wmWidth=width*factor;
+    const wmHeight=wmWidth/wmRatio;
+
+    const gapFactor={
+      tight:.12,
+      normal:.35,
+      wide:.7
+    }[s.gap];
+
+    const stepX=wmWidth*(1+gapFactor);
+    const stepY=wmHeight+
+      Math.max(width*.025,wmHeight*gapFactor);
+
+    let row=0;
+    for(let y=0;y<height;y+=stepY){
+      const shift=row%2===0?0:stepX/2;
+      for(let x=shift-stepX;x<width;x+=stepX){
+        ctx.drawImage(wm,x,y,wmWidth,wmHeight);
+      }
+      row++;
+    }
+  }
+
+  ctx.restore();
+  return await toBlob(canvas);
+}
+
+async function processAll(){
+  if(busy){
+    rerunNeeded=true;
+    return;
+  }
+  if(!watermarkURL||!photos.length)return;
+
+  busy=true;
+  setButtons();
+  const s=currentSettings();
+
+  try{
+    const wm=await loadImage(watermarkURL);
+    let success=0;
+
+    for(let i=0;i<photos.length;i++){
+      updateStatus(
+        "Memproses "+(i+1)+"/"+photos.length+" foto",
+        Math.round(i/photos.length*100)
+      );
+      await new Promise(r=>setTimeout(r,0));
+
+      try{
+        const blob=await processPhoto(photos[i],wm,s);
+        if(photos[i].resultURL)
+          URL.revokeObjectURL(photos[i].resultURL);
+
+        photos[i].blob=blob;
+        photos[i].resultURL=URL.createObjectURL(blob);
+        success++;
+      }catch(err){
+        console.error(photos[i].file.name,err);
+        if(photos[i].resultURL)
+          URL.revokeObjectURL(photos[i].resultURL);
+        photos[i].blob=null;
+        photos[i].resultURL=null;
+      }
+    }
+
+    updateStatus(success+" dari "+photos.length+
+      " foto berhasil diproses ♡",100);
+  }catch(err){
+    console.error(err);
+    updateStatus("Gagal membaca watermark.",0);
+  }finally{
+    busy=false;
+    render();
+    if(rerunNeeded){
+      rerunNeeded=false;
+      processAll();
+    }
+  }
+}
+
+function render(){
+  const finished=photos.filter(p=>p.blob).length;
+  $("photoCount").textContent=photos.length+" foto dipilih";
+  $("resultCount").textContent=finished+" foto selesai";
+
+  const gallery=$("gallery");
+  gallery.replaceChildren();
+
+  photos.forEach((photo,index)=>{
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="tile"+(index===selected?" active":"");
+
+    const img=document.createElement("img");
+    img.src=photo.resultURL||photo.originalURL;
+    img.loading="lazy";
+    img.alt=photo.file.name;
+
+    const name=document.createElement("span");
+    name.textContent=photo.file.name+
+      (photo.blob?" ✓":" · Menunggu");
+
+    btn.append(img,name);
+    btn.onclick=()=>{
+      selected=index;
+      render();
+    };
+    gallery.append(btn);
+  });
+
+  const current=photos[selected];
+  $("beforeEmpty").hidden=!!current;
+  $("beforeImg").hidden=!current;
+
+  if(current)$("beforeImg").src=current.originalURL;
+  else $("beforeImg").removeAttribute("src");
+
+  const hasResult=!!current?.resultURL;
+  $("afterEmpty").hidden=hasResult;
+  $("afterImg").hidden=!hasResult;
+
+  if(hasResult)$("afterImg").src=current.resultURL;
+  else $("afterImg").removeAttribute("src");
+
+  setButtons();
+}
+
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+function filename(name,index){
+  const base=name.replace(/\.[^.]+$/,"")
+    .replace(/[\\/:*?"<>|]/g,"_");
+  return "Watermarkin_"+String(index+1).padStart(3,"0")+
+    "_"+base+".jpg";
+}
+
+$("oneBtn").onclick=()=>{
+  const photo=photos[selected];
+  if(!photo?.blob||busy)return;
+  downloadBlob(photo.blob,filename(photo.file.name,selected));
+};
+
+$("resetBtn").onclick=()=>{
+  if(busy)return;
+  if(photos.length&&!confirm("Hapus semua foto dan watermark?"))
+    return;
+
+  clearTimeout(opacityTimer);
+  rerunNeeded=false;
+
+  photos.forEach(p=>{
+    URL.revokeObjectURL(p.originalURL);
+    if(p.resultURL)URL.revokeObjectURL(p.resultURL);
+  });
+  photos.length=0;
+
+  if(watermarkURL)URL.revokeObjectURL(watermarkURL);
+  watermarkURL=null;
+  selected=0;
+
+  $("wmName").textContent="Belum ada watermark.";
+  $("wmPreview").innerHTML=
+    '<span style="font-size:35px;color:#c6b5dc">♡</span>';
+
+  $("opacitySlider").value=30;
+  $("opacityLabel").textContent="30%";
+  $("cropMode").value="crop";
+  $("wmMode").value="repeat";
+  $("sizeSetting").value="normal";
+  $("gapSetting").value="normal";
+  $("gapBox").style.display="block";
+
+  render();
+  updateStatus("Upload foto dan watermark untuk memulai ♡",0);
+};
+
+const encoder=new TextEncoder();
+
+function crc32(bytes){
+  let crc=0xffffffff;
+  for(let i=0;i<bytes.length;i++){
+    crc^=bytes[i];
+    for(let k=0;k<8;k++){
+      crc=(crc>>>1)^((crc&1)?0xedb88320:0);
+    }
+  }
+  return (crc^0xffffffff)>>>0;
+}
+function w16(v,p,n){v.setUint16(p,n,true)}
+function w32(v,p,n){v.setUint32(p,n>>>0,true)}
+
+async function createZip(items){
+  const localParts=[];
+  const centralParts=[];
+  let offset=0;
+
+  for(let i=0;i<items.length;i++){
+    const item=items[i];
+    const name=encoder.encode(filename(item.file.name,item.index));
+    const data=new Uint8Array(await item.blob.arrayBuffer());
+    const crc=crc32(data);
+
+    const local=new Uint8Array(30+name.length);
+    let v=new DataView(local.buffer);
+    w32(v,0,0x04034b50);
+    w16(v,4,20);
+    w16(v,6,0x0800);
+    w16(v,8,0);
+    w32(v,14,crc);
+    w32(v,18,data.length);
+    w32(v,22,data.length);
+    w16(v,26,name.length);
+    local.set(name,30);
+
+    const central=new Uint8Array(46+name.length);
+    v=new DataView(central.buffer);
+    w32(v,0,0x02014b50);
+    w16(v,4,20);
+    w16(v,6,20);
+    w16(v,8,0x0800);
+    w16(v,10,0);
+    w32(v,16,crc);
+    w32(v,20,data.length);
+    w32(v,24,data.length);
+    w16(v,28,name.length);
+    w32(v,42,offset);
+    central.set(name,46);
+
+    localParts.push(local,data);
+    centralParts.push(central);
+    offset+=local.length+data.length;
+
+    updateStatus("Membuat ZIP "+(i+1)+"/"+items.length,
+      Math.round((i+1)/items.length*100));
+    await new Promise(r=>setTimeout(r,0));
+  }
+
+  const centralSize=centralParts.reduce((n,p)=>n+p.length,0);
+  const end=new Uint8Array(22);
+  const v=new DataView(end.buffer);
+  w32(v,0,0x06054b50);
+  w16(v,8,items.length);
+  w16(v,10,items.length);
+  w32(v,12,centralSize);
+  w32(v,16,offset);
+
+  return new Blob([...localParts,...centralParts,end],
+    {type:"application/zip"});
+}
+
+$("allBtn").onclick=async()=>{
+  if(busy)return;
+  const items=photos.map((p,index)=>({...p,index}))
+    .filter(p=>p.blob);
+  if(!items.length)return;
+  if(items.length>65535){
+    alert("Maksimal 65535 foto per ZIP.");
+    return;
+  }
+
+  busy=true;
+  setButtons();
+  try{
+    const zip=await createZip(items);
+    downloadBlob(zip,"Watermarkin_Hasil.zip");
+    updateStatus(items.length+" foto siap didownload ♡",100);
+  }catch(err){
+    console.error(err);
+    alert("Gagal membuat ZIP. Coba lebih sedikit foto.");
+    updateStatus("Gagal membuat ZIP.",0);
+  }finally{
+    busy=false;
+    setButtons();
+  }
+};
+
+render();
+</script>
+</body>
+</html>
