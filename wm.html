@@ -1,0 +1,830 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EUPHORBIA | Photo Watermarker</title>
+
+<style>
+:root {
+  --red: #b52e45;
+  --rose: #cc7882;
+  --dark: #751d32;
+  --pink: #fff0f0;
+  --border: #f3cfd1;
+  --white: #fffafa;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg,#ffe4e5,#fff7f5,#f9d4d8);
+  color: var(--dark);
+  min-height: 100vh;
+}
+header {
+  background: linear-gradient(110deg,#f4c6c9,#ffe7e5);
+  padding: 24px 5%;
+  border-bottom: 1px solid #e8b5b9;
+}
+header h1 {
+  font-family: Georgia,serif;
+  font-size: clamp(29px,4vw,43px);
+  margin: 0;
+  letter-spacing: 2px;
+}
+header p {
+  margin: 5px 0 0;
+  color: #bc6972;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+.container {
+  max-width: 1450px;
+  margin: 25px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 330px minmax(0,1fr);
+  gap: 20px;
+}
+.panel {
+  background: rgba(255,250,250,.85);
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 8px 28px #ac657019;
+  margin-bottom: 18px;
+}
+h2 {
+  font-family: Georgia,serif;
+  margin: 0 0 15px;
+  font-size: 23px;
+}
+p { line-height: 1.6; }
+.drop {
+  border: 2px dashed #e7a0a8;
+  border-radius: 16px;
+  padding: 30px 14px;
+  text-align: center;
+  background: #fff5f4;
+  cursor: pointer;
+  transition: .2s;
+}
+.drop:hover,.drop.drag {
+  background: #ffe5e6;
+  border-color: var(--red);
+}
+.drop .symbol { font-size: 39px; }
+.drop strong { display: block; margin: 10px 0; }
+.muted { font-size: 12px; color: #aa8185; }
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 18px;
+  font: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  transition: .2s;
+}
+button:hover:not(:disabled) {
+  filter: brightness(.95);
+  transform: translateY(-1px);
+}
+button:disabled { opacity: .5; cursor: not-allowed; }
+.primary {
+  background: linear-gradient(120deg,#c96572,#ad2c44);
+  color: white;
+}
+.secondary {
+  background: #ffe8e8;
+  color: var(--red);
+  border: 1px solid #efc5c9;
+}
+.full { width: 100%; }
+label {
+  display: block;
+  margin: 16px 0 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+input[type=text],select {
+  width: 100%;
+  border: 1px solid #eed3d5;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fffafa;
+  color: #71303b;
+  font: inherit;
+}
+input[type=range] {
+  width: 100%;
+  accent-color: var(--red);
+}
+.setting-note {
+  background: #ffe8e9;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 20px;
+  font-size: 13px;
+  line-height: 2;
+}
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 15px;
+}
+.photo-box {
+  background: #fff1f0;
+  border-radius: 15px;
+  padding: 13px;
+  min-width: 0;
+}
+.photo-box h3 { margin: 0 0 12px; font-size: 14px; }
+.photo-box img {
+  display: block;
+  max-width: 100%;
+  height: 330px;
+  margin: auto;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.empty {
+  height: 330px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #b78b90;
+  border: 1px dashed #ecc4c7;
+  border-radius: 12px;
+}
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(115px,1fr));
+  gap: 13px;
+  margin-top: 18px;
+}
+.thumb {
+  padding: 6px;
+  border: 2px solid transparent;
+  background: #fff1f1;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+.thumb.active { border-color: var(--red); }
+.thumb img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.thumb span {
+  display: block;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px;
+  color: #853e4c;
+}
+.actions {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+.status {
+  background: #fff0f0;
+  border-radius: 12px;
+  padding: 13px;
+  margin-top: 15px;
+  font-size: 13px;
+}
+.progress {
+  height: 9px;
+  background: #f4d6d8;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 9px;
+}
+.progress div {
+  width: 0;
+  height: 100%;
+  background: var(--red);
+  transition: width .15s;
+}
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #a66b76;
+  font-size: 12px;
+}
+@media(max-width:850px) {
+  .container { grid-template-columns: 1fr; }
+}
+@media(max-width:520px) {
+  .compare { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .photo-box { padding: 8px; }
+  .photo-box img,.empty { height: 230px; }
+  .panel { padding: 15px; }
+  .actions button { width: 100%; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>EUPHORBIA ♥</h1>
+  <p>PHOTO WATERMARKER · SOFT RED EDITION</p>
+</header>
+
+<div class="container">
+  <aside>
+    <section class="panel">
+      <h2>♡ Upload Foto</h2>
+      <div class="drop" id="dropZone">
+        <div class="symbol">☁</div>
+        <strong>Pilih atau seret banyak foto</strong>
+        <p class="muted">JPG, PNG, WEBP</p>
+        <button class="primary" id="pickBtn" type="button">
+          ♡ Pilih Foto
+        </button>
+      </div>
+      <input id="fileInput" type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple hidden>
+      <p class="muted">
+        Bisa pilih banyak foto sekaligus.
+        Foto baru akan ditambahkan ke daftar.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>⚙ Pengaturan</h2>
+
+      <label>Rasio Foto</label>
+      <input type="text"
+        value="3:4 — Auto Crop dari Tengah"
+        readonly>
+
+      <label>Tulisan Watermark</label>
+      <input type="text" id="wmText"
+        value="EUPHORBIA 085601485341" readonly>
+
+      <label>Warna Watermark</label>
+      <input type="text"
+        value="Merah — #FF0000" readonly>
+
+      <label>Transparansi</label>
+      <input type="text"
+        value="30% Opacity" readonly>
+
+      <label>Posisi Watermark</label>
+      <input type="text"
+        value="Full Berjejer — Horizontal" readonly>
+
+      <label>Ukuran Watermark</label>
+      <select id="wmSize">
+        <option value="small">Kecil — lebih rapat</option>
+        <option value="normal" selected>Normal — rekomendasi</option>
+        <option value="large">Besar</option>
+      </select>
+
+      <label>Jarak Antarbaris</label>
+      <select id="wmGap">
+        <option value="tight">Rapat</option>
+        <option value="normal" selected>Normal</option>
+        <option value="wide">Renggang</option>
+      </select>
+
+      <div class="setting-note">
+        ♡ Semua foto diproses otomatis<br>
+        ✓ Crop 3:4 dari tengah<br>
+        ✓ Watermark merah 30%<br>
+        ✓ Berjejer lurus, tidak miring<br>
+        ✓ Menutupi seluruh foto<br>
+        ✓ Hasil JPG kualitas tinggi
+      </div>
+    </section>
+  </aside>
+
+  <main>
+    <section class="panel">
+      <div class="preview-header">
+        <h2>♡ Preview Foto</h2>
+        <span id="countLabel" class="muted">0 foto</span>
+      </div>
+
+      <div class="compare">
+        <div class="photo-box">
+          <h3>Foto Asli</h3>
+          <div id="originalEmpty" class="empty">
+            Belum ada foto ♡
+          </div>
+          <img id="originalImg" hidden alt="Foto asli">
+        </div>
+
+        <div class="photo-box">
+          <h3>Hasil Crop 3:4 + WM</h3>
+          <div id="resultEmpty" class="empty">
+            Hasil muncul di sini ♡
+          </div>
+          <img id="resultImg" hidden alt="Hasil watermark">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>♡ Preview Semua Foto</h2>
+      <p class="muted">
+        Klik salah satu foto untuk melihat hasilnya.
+      </p>
+      <div id="gallery" class="gallery"></div>
+
+      <div class="status">
+        <div id="statusText">Belum ada foto yang diupload.</div>
+        <div class="progress">
+          <div id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="resetBtn" class="secondary">
+          ↻ Reset Semua
+        </button>
+        <button id="downloadOne" class="secondary" disabled>
+          ↓ Download Foto Ini
+        </button>
+        <button id="downloadAll" class="primary" disabled>
+          ↓ Download Semua (ZIP)
+        </button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Made with ♡ for EUPHORBIA · Photo Watermarker
+</footer>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const files = [];
+let selected = 0;
+let busy = false;
+
+const fileInput = $("fileInput");
+const dropZone = $("dropZone");
+const gallery = $("gallery");
+
+$("pickBtn").onclick = e => {
+  e.stopPropagation();
+  fileInput.click();
+};
+dropZone.onclick = () => fileInput.click();
+
+fileInput.onchange = async e => {
+  await addFiles(e.target.files);
+  fileInput.value = "";
+};
+
+dropZone.ondragover = e => {
+  e.preventDefault();
+  dropZone.classList.add("drag");
+};
+dropZone.ondragleave = () =>
+  dropZone.classList.remove("drag");
+
+dropZone.ondrop = async e => {
+  e.preventDefault();
+  dropZone.classList.remove("drag");
+  await addFiles(e.dataTransfer.files);
+};
+
+function status(message, percent) {
+  $("statusText").textContent = message;
+  if (percent !== undefined)
+    $("progressBar").style.width = percent + "%";
+}
+
+function buttons() {
+  $("downloadOne").disabled = busy || !files.length;
+  $("downloadAll").disabled = busy || !files.length;
+  $("resetBtn").disabled = busy;
+  $("wmSize").disabled = busy;
+  $("wmGap").disabled = busy;
+  $("pickBtn").disabled = busy;
+}
+
+function loadImage(url) {
+  return new Promise((resolve,reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(
+      new Error("Gambar tidak bisa dibaca")
+    );
+    img.src = url;
+  });
+}
+
+function canvasBlob(canvas) {
+  return new Promise((resolve,reject) => {
+    canvas.toBlob(blob => {
+      if (blob) resolve(blob);
+      else reject(new Error("Gagal membuat hasil foto"));
+    }, "image/jpeg", .94);
+  });
+}
+
+async function processPhoto(file) {
+  const sourceURL = URL.createObjectURL(file);
+  try {
+    const img = await loadImage(sourceURL);
+
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+
+    if (!iw || !ih) throw Error("Ukuran foto tidak valid");
+
+    // Auto crop tengah dengan rasio 3:4.
+    let sw, sh;
+    if (iw / ih > 3 / 4) {
+      sh = ih;
+      sw = ih * 3 / 4;
+    } else {
+      sw = iw;
+      sh = iw * 4 / 3;
+    }
+
+    const sx = (iw - sw) / 2;
+    const sy = (ih - sh) / 2;
+
+    // Resolusi mengikuti sumber, maksimal 1800 x 2400.
+    const width = Math.max(1,Math.round(Math.min(sw,1800)));
+    const height = Math.round(width * 4 / 3);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw Error("Canvas tidak didukung");
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0,0,width,height);
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,width,height);
+
+    // Watermark berulang lurus horizontal.
+    const text = "EUPHORBIA 085601485341";
+    const size = $("wmSize").value;
+    const gap = $("wmGap").value;
+
+    const factor = size === "small" ? .032 :
+                   size === "large" ? .052 : .041;
+
+    const fontSize = Math.max(9,Math.round(width * factor));
+
+    ctx.save();
+    ctx.globalAlpha = .30;
+    ctx.fillStyle = "#ff0000";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.font = "bold " + fontSize + "px Georgia, serif";
+
+    const textWidth = ctx.measureText(text).width;
+    const horizontalGap = fontSize * .65;
+    const stepX = textWidth + horizontalGap;
+
+    const gapFactor = gap === "tight" ? 1.6 :
+                      gap === "wide" ? 3 : 2.25;
+    const stepY = fontSize * gapFactor;
+
+    // Dimulai dari atas, dilanjutkan sampai bawah.
+    // Baris bergantian sedikit bergeser agar lebih merata.
+    let row = 0;
+    for (let y = fontSize / 2; y < height + fontSize; y += stepY) {
+      const shift = row % 2 === 0 ? 0 : stepX / 2;
+      for (let x = shift - stepX; x < width + stepX; x += stepX) {
+        ctx.fillText(text,x,y);
+      }
+      row++;
+    }
+
+    ctx.restore();
+
+    const blob = await canvasBlob(canvas);
+    return {
+      name: file.name,
+      originalURL: sourceURL,
+      resultURL: URL.createObjectURL(blob),
+      blob
+    };
+  } catch (err) {
+    URL.revokeObjectURL(sourceURL);
+    throw err;
+  }
+}
+
+async function addFiles(fileList) {
+  if (busy) return;
+
+  const incoming = Array.from(fileList).filter(
+    f => ["image/jpeg","image/png","image/webp"].includes(f.type)
+  );
+  if (!incoming.length) {
+    alert("Pilih foto JPG, PNG, atau WEBP ya ♡");
+    return;
+  }
+
+  busy = true;
+  buttons();
+
+  let failed = 0;
+  const start = files.length;
+
+  for (let i = 0; i < incoming.length; i++) {
+    status(
+      "Memproses foto " + (i+1) + " dari " + incoming.length,
+      Math.round(i/incoming.length*100)
+    );
+
+    // Beri kesempatan browser memperbarui tampilan.
+    await new Promise(resolve => setTimeout(resolve,0));
+
+    try {
+      const result = await processPhoto(incoming[i]);
+      files.push(result);
+    } catch (e) {
+      failed++;
+      console.warn(incoming[i].name,e);
+    }
+  }
+
+  busy = false;
+  if (files.length > start) selected = start;
+
+  render();
+  buttons();
+
+  status(
+    files.length + " foto berhasil diproses." +
+    (failed ? " " + failed + " foto gagal dibaca." : ""),
+    100
+  );
+}
+
+function render() {
+  $("countLabel").textContent = files.length + " foto";
+  gallery.replaceChildren();
+
+  files.forEach((item,index) => {
+    const btn = document.createElement("button");
+    btn.className = "thumb" + (index === selected ? " active" : "");
+    btn.type = "button";
+
+    const img = document.createElement("img");
+    img.src = item.resultURL;
+    img.alt = "Hasil " + item.name;
+    img.loading = "lazy";
+
+    const name = document.createElement("span");
+    name.textContent = item.name;
+
+    btn.append(img,name);
+    btn.onclick = () => {
+      selected = index;
+      render();
+    };
+    gallery.append(btn);
+  });
+
+  const item = files[selected];
+  $("originalEmpty").hidden = !!item;
+  $("resultEmpty").hidden = !!item;
+  $("originalImg").hidden = !item;
+  $("resultImg").hidden = !item;
+
+  if (item) {
+    $("originalImg").src = item.originalURL;
+    $("resultImg").src = item.resultURL;
+  } else {
+    $("originalImg").removeAttribute("src");
+    $("resultImg").removeAttribute("src");
+  }
+
+  buttons();
+}
+
+function downloadBlob(blob,name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url),60000);
+}
+
+function outputName(name,index) {
+  const base = name.replace(/\.[^.]+$/,"")
+    .replace(/[\\/:*?"<>|]/g,"_");
+  return "EUPHORBIA_" +
+    String(index+1).padStart(3,"0") +
+    "_" + base + ".jpg";
+}
+
+$("downloadOne").onclick = () => {
+  if (!files.length || busy) return;
+  downloadBlob(files[selected].blob,
+    outputName(files[selected].name,selected));
+};
+
+function clearFiles() {
+  files.forEach(item => {
+    URL.revokeObjectURL(item.originalURL);
+    URL.revokeObjectURL(item.resultURL);
+  });
+  files.length = 0;
+  selected = 0;
+  render();
+  status("Belum ada foto yang diupload.",0);
+}
+
+$("resetBtn").onclick = () => {
+  if (busy) return;
+  if (!files.length || confirm("Hapus semua foto dari daftar?"))
+    clearFiles();
+};
+
+async function reprocessAll() {
+  if (busy || !files.length) return;
+  busy = true;
+  buttons();
+
+  const oldFiles = [...files];
+  const replacements = [];
+  let failed = 0;
+
+  for (let i = 0; i < oldFiles.length; i++) {
+    status("Memperbarui watermark " + (i+1) +
+      "/" + oldFiles.length,
+      Math.round(i/oldFiles.length*100));
+    await new Promise(r => setTimeout(r,0));
+
+    try {
+      const response = await fetch(oldFiles[i].originalURL);
+      const blob = await response.blob();
+      const file = new File([blob],oldFiles[i].name,
+        {type:blob.type});
+      replacements.push(await processPhoto(file));
+    } catch(e) {
+      failed++;
+      replacements.push(null);
+      console.warn(e);
+    }
+  }
+
+  replacements.forEach((newItem,i) => {
+    if (newItem) {
+      URL.revokeObjectURL(files[i].originalURL);
+      URL.revokeObjectURL(files[i].resultURL);
+      files[i] = newItem;
+    }
+  });
+
+  busy = false;
+  render();
+  status("Preview diperbarui." +
+    (failed ? " " + failed + " foto gagal diperbarui." : ""),100);
+}
+
+$("wmSize").onchange = reprocessAll;
+$("wmGap").onchange = reprocessAll;
+
+// ZIP mandiri, tanpa library, CDN, atau internet.
+// Menggunakan metode ZIP STORE (tanpa kompresi tambahan).
+const encoder = new TextEncoder();
+
+function crc32(bytes) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i];
+    for (let k = 0; k < 8; k++)
+      crc = (crc >>> 1) ^
+        ((crc & 1) ? 0xedb88320 : 0);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function put16(view,pos,value) {
+  view.setUint16(pos,value,true);
+}
+function put32(view,pos,value) {
+  view.setUint32(pos,value >>> 0,true);
+}
+
+async function createZip(items) {
+  const parts = [];
+  const central = [];
+  let offset = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const filename = encoder.encode(outputName(item.name,i));
+    const data = new Uint8Array(await item.blob.arrayBuffer());
+    const crc = crc32(data);
+
+    const local = new Uint8Array(30 + filename.length);
+    let v = new DataView(local.buffer);
+    put32(v,0,0x04034b50);
+    put16(v,4,20);
+    put16(v,6,0x0800);
+    put16(v,8,0);
+    put32(v,14,crc);
+    put32(v,18,data.length);
+    put32(v,22,data.length);
+    put16(v,26,filename.length);
+    local.set(filename,30);
+
+    const cd = new Uint8Array(46 + filename.length);
+    v = new DataView(cd.buffer);
+    put32(v,0,0x02014b50);
+    put16(v,4,20);
+    put16(v,6,20);
+    put16(v,8,0x0800);
+    put16(v,10,0);
+    put32(v,16,crc);
+    put32(v,20,data.length);
+    put32(v,24,data.length);
+    put16(v,28,filename.length);
+    put32(v,42,offset);
+    cd.set(filename,46);
+
+    parts.push(local,data);
+    central.push(cd);
+    offset += local.length + data.length;
+
+    status("Menyiapkan ZIP " + (i+1) + "/" + items.length,
+      Math.round((i+1)/items.length*100));
+    await new Promise(r => setTimeout(r,0));
+  }
+
+  const cdSize = central.reduce((n,p) => n+p.length,0);
+  const end = new Uint8Array(22);
+  const v = new DataView(end.buffer);
+  put32(v,0,0x06054b50);
+  put16(v,8,items.length);
+  put16(v,10,items.length);
+  put32(v,12,cdSize);
+  put32(v,16,offset);
+
+  return new Blob([...parts,...central,end],
+    {type:"application/zip"});
+}
+
+$("downloadAll").onclick = async () => {
+  if (busy || !files.length) return;
+  if (files.length > 65535) {
+    alert("Maksimal 65535 foto per ZIP.");
+    return;
+  }
+
+  busy = true;
+  buttons();
+
+  try {
+    const zip = await createZip(files);
+    downloadBlob(zip,"EUPHORBIA_WATERMARK.zip");
+    status(files.length + " foto siap didownload dalam ZIP.",100);
+  } catch(e) {
+    console.error(e);
+    alert("Gagal membuat ZIP. Coba gunakan lebih sedikit foto.");
+    status("Gagal membuat ZIP.",0);
+  } finally {
+    busy = false;
+    buttons();
+  }
+};
+
+render();
+</script>
+</body>
+</html>
